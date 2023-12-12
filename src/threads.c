@@ -20,8 +20,8 @@ void thread_entry(void)
     k_sem_init(&semaphore, 1, 1);
 	while (1) {
         k_sem_take(&semaphore, K_FOREVER);
-        *counter++;
-		printk("hello world from %s! Count %d\n", "thread", *counter);
+        counter++;
+		printk("hello world from %s! Count %d\n", "thread", counter);
 		k_timer_start(&timer, K_MSEC(SLEEPTIME), K_NO_WAIT);
 		k_timer_status_sync(&timer);
         k_sem_give(&semaphore);

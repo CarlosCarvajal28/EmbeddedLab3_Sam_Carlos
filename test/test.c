@@ -2,58 +2,46 @@
 #include <zephyr.h>
 #include <arch/cpu.h>
 #include <sys/printk.h>
+#include "loop.h"
 
-#define STACKSIZE 2000
-#define SLEEPTIME 1000
 
-struct k_thread coop_thread;
-K_THREAD_STACK_DEFINE(coop_stack, STACKSIZE);
 
-struct k_sem semaphore;
-int counter;
-void thread_entry(void)
-{
-	struct k_timer timer;
-	k_timer_init(&timer, NULL, NULL);
-    k_timer_start(&timer, K_MSEC(SLEEPTIME/2), K_NO_WAIT);
-    k_timer_status_sync(&timer);
-	test_sem(&counter, semaphore, timer);
-}
+void test_loop_block(){
+    struct k_sem semaphore;
+    struct k_timer timer;
+    int result;
+    int counter = 0;
 
-int test_sem(int counter, struct sem, struct tim){
-
-    int stat_code;
-    stat_code = k_sem_take(&semaphore, K_FOREVER);
-    (counter)++;
-    printk("hello world from %s! Count %d\n", "thread", counter);
-    k_timer_start(&timer, K_MSEC(SLEEPTIME), K_NO_WAIT);
-    k_timer_status_sync(&timer);
-    k_sem_give(&semaphore);
-    printk("Status: %d\n", stat_code);
-	
-
-}
-
-int main(void)
-{
-    counter = 0;
+    k_timer_init(&timer, NULL, NULL);
     k_sem_init(&semaphore, 1, 1);
-    k_thread_create(&coop_thread,
-                    coop_stack,
-                    STACKSIZE,
-                    (k_thread_entry_t) thread_entry,
-                    NULL,
-                    NULL,
-                    NULL,
-                    K_PRIO_COOP(7),
-                    0,
-                    K_NO_WAIT);
 
-	struct k_timer timer;
-	k_timer_init(&timer, NULL, NULL);
+    k_sem_take(&semaphore, K_FOREVER);
 
-	test_sem(&counter, &semaphore, &timer);
-	
+    result = do_loop(&timer, &semaphore, &counter, "test", K_MSEC(100));
+    TEST_ASSERT_EQUAL_INT(1, result);
+    TEST_ASSERT_EQUAL_INT(0, counter);
+}
 
-	return 0;
+void test_loop_run(){
+    struct k_sem semaphore;
+    struct k_timer timer;
+    int result;
+    int counter = 0;
+
+    k_timer_init(&timer, NULL, NULL);
+    k_sem_init(&semaphore, 1, 1);
+
+    k_sem_take(&semaphore, K_FOREVER);
+
+    result = do_loop(&timer, &semaphore, &counter, "test", K_MSEC(100));
+    TEST_ASSERT_EQUAL_INT(0, result);
+    TEST_ASSERT_EQUAL_INT(1, counter);
+}
+
+
+int main(){
+    UNITY_BEGIN();
+    RUN_TEST(test_loop_block);
+    RUN_TEST(test_loop_run);
+    return UNITY_END();
 }
