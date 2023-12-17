@@ -1,0 +1,1 @@
+ECE 6960 Lab 3: Carlos Carvajal and Sam Refahiyat ![example workflow](https://github.com/CarlosCarvajal28/EmbeddedLab3_Sam_Carlos/actions/workflows/main.yml/badge.svg)
