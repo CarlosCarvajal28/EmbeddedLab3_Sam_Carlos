@@ -5,6 +5,9 @@
 #include <arch/cpu.h>
 #include <sys/printk.h>
 
+#define SLEEPTIME 5
+#define STACKSIZE 2000
+
 int do_loop(struct k_timer *timer,
             struct k_sem *semaphore,
             int *counter,

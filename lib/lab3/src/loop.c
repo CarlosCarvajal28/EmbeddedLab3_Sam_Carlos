@@ -1,6 +1,5 @@
 #include "loop.h"
 
-#define SLEEPTIME 5
 
 int do_loop(struct k_timer *timer,
             struct k_sem *semaphore,
